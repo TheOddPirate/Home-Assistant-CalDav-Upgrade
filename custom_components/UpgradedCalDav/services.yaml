@@ -1,0 +1,21 @@
+create_calendar:
+  name: Create Calendar
+  description: Create a new calendar
+  fields:
+    name:
+      name: Calendar Name
+      description: Name of the calendar to create
+      required: true
+      selector:
+        text:
+
+delete_calendar:
+  name: Delete Calendar
+  description: Delete an existing calendar
+  fields:
+    calendar_id:
+      name: Calendar ID
+      description: ID of the calendar to delete
+      required: true
+      selector:
+        text:

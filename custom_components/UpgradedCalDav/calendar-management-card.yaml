@@ -1,0 +1,12 @@
+type: custom:vertical-stack-card
+cards:
+  - type: entities
+    title: Calendar Management
+    entities:
+      - entity: calendar.calendar_management
+        type: custom:calendar-management
+        name: Manage Calendars
+    footer:
+      type: custom:calendar-management-footer
+      entities:
+        - entity: calendar.calendar_management

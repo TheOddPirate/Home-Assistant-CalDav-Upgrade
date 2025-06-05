@@ -395,3 +395,55 @@ class WebDavCalendarEntity(CoordinatorEntity[CalDavUpdateCoordinator], CalendarE
         """When entity is added to hass update state from existing coordinator data."""
         await super().async_added_to_hass()
         self._handle_coordinator_update()
+
+
+from homeassistant.components.calendar import CalendarEntity, CalendarEntityFeature
+from homeassistant.config_entries import ConfigEntry
+
+class CalDavCalendarManagement(CalendarEntity):
+    """Calendar management entity."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Calendar Management"
+    _attr_icon = "mdi:calendar-multiple"
+
+    def __init__(self, coordinator, entry: ConfigEntry) -> None:
+        """Initialize the calendar management."""
+        super().__init__()
+        self.coordinator = coordinator
+        self.entry = entry
+        self._attr_unique_id = f"{entry.entry_id}_management"
+        self._calendars = []
+        self._update_calendars()
+
+    async def _update_calendars(self) -> None:
+        """Update list of available calendars."""
+        self._calendars = await self.coordinator.client.list_calendars()
+
+    async def create_calendar(self, name: str) -> None:
+        """Create a new calendar."""
+        try:
+            await self.coordinator.client.create_calendar(name)
+            await self._update_calendars()
+            await self.coordinator.async_refresh()
+        except Exception as err:
+            raise HomeAssistantError(f"Failed to create calendar: {err}")
+
+    async def delete_calendar(self, calendar_id: str) -> None:
+        """Delete a calendar."""
+        try:
+            await self.coordinator.client.delete_calendar(calendar_id)
+            await self._update_calendars()
+            await self.coordinator.async_refresh()
+        except Exception as err:
+            raise HomeAssistantError(f"Failed to delete calendar: {err}")
+
+    @property
+    def extra_state_attributes(self):
+        """Return the list of available calendars."""
+        return {
+            "calendars": [
+                {"name": cal.name, "id": cal.id} 
+                for cal in self._calendars
+            ]
+        }
